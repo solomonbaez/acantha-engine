@@ -3,9 +3,9 @@ extern "C" {
 }
 
 fn main() {
-    // JS communication requires unsafe declarations
-    unsafe {
-        log_number(4);
-        engine::clear_screen_to_color(0.0, 0.0, 1.0, 1.0);
-    };
+    let mut blue_amount = 0.0;
+    engine::set_event_handler(move || {
+        blue_amount += 0.1;
+        engine::clear_screen_to_color(0.0, 0.0, blue_amount, 1.0);
+    });
 }
