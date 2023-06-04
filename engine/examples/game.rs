@@ -1,4 +1,8 @@
+extern "C" {
+    pub fn log_number(number: usize);
+}
+
 fn main() {
-    println!("Hello, world!");
-    panic!()
+    // JS communication requires unsafe declarations
+    unsafe { log_number(4) }
 }
