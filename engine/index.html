@@ -2,9 +2,15 @@
     <body style="margin:0; overflow-y: hidden;overflow-x: hidden;">
         <canvas id="my_canvas" style="width:100vw; height: 100vh;"></canvas>
         <script>
+            let canvas = document.getElementById("my_canvas");
+            let gl = canvas.getContext("webgl");
             let imports = {
                 env: {
-                    log_number: function(number) { console.log("Number from Rust: ", number); }
+                    log_number: function(number) { console.log("Number from Rust: ", number); },
+                    js_screen_color: function(red, green, blue, alpha) {
+                        gl.clearColor(red, green, blue, alpha);
+                        gl.clear(gl.COLOR_BUFFER_BIT);
+                    },
                 }
             };
             WebAssembly.instantiateStreaming(fetch(
