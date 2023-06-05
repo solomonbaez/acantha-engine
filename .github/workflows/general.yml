@@ -41,15 +41,3 @@ jobs:
       - name: Linting
         working-directory: engine
         run: cargo clippy -- -D warnings
-
-  coverage:
-    name: Code Coverage
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - name: Generate code coverage
-        working-directory: engine
-        run: cargo install cargo-tarpaulin && cargo tarpaulin --verbose --workspace
-        
