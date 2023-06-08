@@ -15,8 +15,10 @@
 
             let fragment_shader = gl.createShader(gl.FRAGMENT_SHADER);
             gl.shaderSource(fragment_shader, `
+                precision mediump float;
+                uniform vec4 color;
                 void main() {
-                    gl_FragColor = vec4(1.0, 0.5, 0.313, 1.0);
+                    gl_FragColor = color;
                 }
             `);
             gl.compileShader(fragment_shader)
@@ -28,6 +30,7 @@
             
             let position_attribute_location = gl.getAttribLocation(program, "vertex_position");
             gl.enableVertexAttribArray(position_attribute_location);
+            let color_uniform_location = gl.getUniformLocation(program, "color");
 
             let imports = {
                 env: {
@@ -35,7 +38,7 @@
                         gl.clearColor(red, green, blue, alpha);
                         gl.clear(gl.COLOR_BUFFER_BIT);
                     },
-                    js_draw_rectangle: function (x, y, width, height) {
+                    js_draw_rectangle: function (x, y, width, height, red, green, blue, alpha) {
                         let data_buffer = gl.createBuffer();
                         gl.bindBuffer(gl.ARRAY_BUFFER, data_buffer);
 
@@ -61,6 +64,7 @@
                         );
 
                         gl.useProgram(program);
+                        gl.uniform4f(color_uniform_location, red, green, blue, alpha);
                         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
                         gl.deleteBuffer(data_buffer);
                     }
