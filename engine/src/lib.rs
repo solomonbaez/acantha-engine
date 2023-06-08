@@ -22,12 +22,12 @@ pub extern "C" fn key_pressed(value: usize) {
         _ => return,
     };
 
-    EVENT_HANDLER.with(|event_handler| (event_handler.borrow_mut())(Event::KeyDown(key)))
+    send_event(Event::KeyDown(key));
 }
 
 #[no_mangle]
 pub extern "C" fn animate() {
-    EVENT_HANDLER.with(|event_handler| (event_handler.borrow_mut())(Event::Draw))
+    send_event(Event::Draw);
 }
 
 extern "C" {
@@ -35,27 +35,38 @@ extern "C" {
     fn js_draw_rectangle(x: f32, y: f32, width: f32, height: f32);
 }
 
-// encase unsafe calls
-pub fn clear_screen_to_color(red: f32, green: f32, blue: f32, alpha: f32) {
-    unsafe {
-        js_screen_color(red, green, blue, alpha);
-    }
-}
+pub struct Context {}
 
-// encase unsafe calls
-pub fn draw_rectangle(x: f32, y: f32, width: f32, height: f32) {
-    unsafe {
-        js_draw_rectangle(x, y, width, height);
+impl Context {
+    pub fn clear_screen_to_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        unsafe {
+            js_screen_color(red, green, blue, alpha);
+        }
+    }
+
+    pub fn draw_rectangle(&mut self, x: f32, y: f32, width: f32, height: f32) {
+        unsafe {
+            js_draw_rectangle(x, y, width, height);
+        }
     }
 }
 
 thread_local! {
-    pub static EVENT_HANDLER:
-        std::cell::RefCell<Box<dyn FnMut(Event)>> = std::cell::RefCell::new(Box::new(|_|{}))
+    pub static EVENT_HANDLER_W_CONTEXT:
+        std::cell::RefCell<(Box<dyn FnMut(&mut Context, Event)>, Context)> =
+        std::cell::RefCell::new((Box::new(|_, _|{}), Context {}));
 }
 
-pub fn set_event_handler(function: impl FnMut(Event) + 'static) {
-    EVENT_HANDLER.with(|event_handler| {
-        *event_handler.borrow_mut() = Box::new(function);
+pub fn set_event_handler(function: impl FnMut(&mut Context, Event) + 'static) {
+    EVENT_HANDLER_W_CONTEXT.with(|event_handler_w_context| {
+        event_handler_w_context.borrow_mut().0 = Box::new(function);
     });
+}
+
+fn send_event(event: Event) {
+    EVENT_HANDLER_W_CONTEXT.with(|event_handler_w_context| {
+        let mut borrow = event_handler_w_context.borrow_mut();
+        let (event_handler, context) = &mut *borrow;
+        (event_handler)(context, event)
+    })
 }
