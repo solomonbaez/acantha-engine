@@ -1,3 +1,5 @@
+#![allow(clippy::too_many_arguments)]
+
 pub enum Key {
     Left,
     Right,
@@ -70,9 +72,11 @@ impl Context {
     }
 }
 
+type ContextClosure = Box<dyn FnMut(&mut Context, Event)>;
+
 thread_local! {
     pub static EVENT_HANDLER_W_CONTEXT:
-        std::cell::RefCell<(Box<dyn FnMut(&mut Context, Event)>, Context)> =
+        std::cell::RefCell<(ContextClosure, Context)> =
         std::cell::RefCell::new((Box::new(|_, _|{}), Context {}));
 }
 

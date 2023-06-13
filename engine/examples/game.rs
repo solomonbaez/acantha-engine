@@ -1,3 +1,5 @@
+use engine::{Event, Key};
+
 fn main() {
     let mut x_pos = 200.0;
     let mut y_pos = 30.0;
@@ -5,10 +7,10 @@ fn main() {
     let mut x_dir = 1.0;
     let mut y_dir = 1.0;
 
-    let speed = 5.0;
+    let mut speed = 5.0;
 
     engine::set_event_handler(move |context, event| {
-        if let engine::Event::Draw = event {
+        if let Event::Draw = event {
             x_pos += x_dir * speed;
             y_pos += y_dir * speed;
 
@@ -22,6 +24,12 @@ fn main() {
 
             context.clear_screen_to_color(0.0, 0.0, 0.3, 1.0);
             context.draw_rectangle(x_pos, y_pos, 100., 100., 1.0, 0.0, 0.0, 1.0);
+        }
+        if let Event::KeyDown(Key::Up) = event {
+            speed += 1.0;
+        }
+        if let Event::KeyDown(Key::Down) = event {
+            speed -= 4.0;
         }
     });
 }
