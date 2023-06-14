@@ -7,18 +7,18 @@ fn main() {
     let mut x_dir = 1.0;
     let mut y_dir = 1.0;
 
-    let mut speed = 5.0;
+    let mut speed = 0.5;
 
     engine::set_event_handler(move |context, event| {
         if let Event::Draw = event {
             x_pos += x_dir * speed;
             y_pos += y_dir * speed;
 
-            if x_pos <= 0.0 || x_pos >= 500.0 {
+            if x_pos <= 0.0 || x_pos >= 250.0 {
                 x_dir *= -1.0;
             }
 
-            if y_pos <= 0.0 || y_pos >= 500.0 {
+            if y_pos <= 0.0 || y_pos >= 200.0 {
                 y_dir *= -1.0;
             }
 
@@ -26,10 +26,16 @@ fn main() {
             context.draw_rectangle(x_pos, y_pos, 100., 100., 1.0, 0.0, 0.0, 1.0);
         }
         if let Event::KeyDown(Key::Up) = event {
-            speed += 1.0;
+            speed += 0.5;
         }
         if let Event::KeyDown(Key::Down) = event {
-            speed -= 4.0;
+            speed -= 0.5;
+        }
+        if let Event::KeyDown(Key::Right) = event {
+            x_dir += 5.0;
+        }
+        if let Event::KeyDown(Key::Left) = event {
+            x_dir -= 5.0;
         }
     });
 }
