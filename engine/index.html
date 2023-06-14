@@ -71,7 +71,7 @@
                 }
             };
             WebAssembly.instantiateStreaming(fetch(
-                '/target/wasm32-unknown-unknown/debug/examples/game.wasm'),
+                '../target/wasm32-unknown-unknown/debug/examples/game.wasm'),
                 imports
             )
             .then(function (result) {
