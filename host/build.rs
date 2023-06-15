@@ -9,11 +9,14 @@ fn main() {
     let file_destination = dir_destination.join("index.html");
 
     fs::create_dir_all(&dir_destination).expect("Failed to build destination directory");
-    std::fs::copy(source_index, file_destination).expect("Failed to copy index.html");
+    fs::copy(source_index, file_destination).expect("Failed to copy index.html");
 
-    let source_wasm = PathBuf::from("../engine/target/wasm32-unknown-unknown");
-    let folder_destination =
-        PathBuf::from(env::var("OUT_DIR").unwrap()).join("wasm32-unknown-unknown");
+    let source_wasm = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
+        .parent()
+        .unwrap()
+        .join("target/wasm32-unknown-unknown");
+    let folder_destination = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
+        .join("target/wasm32-unknown-unknown");
 
     DirBuilder::new()
         .recursive(true)
@@ -23,7 +26,7 @@ fn main() {
     copy_folder(source_wasm, folder_destination).unwrap();
 }
 
-fn copy_folder<P: AsRef<Path>>(src: P, dst: P) -> std::io::Result<()> {
+fn copy_folder<P: AsRef<Path> + std::fmt::Debug>(src: P, dst: P) -> std::io::Result<()> {
     if src.as_ref().is_dir() {
         DirBuilder::new().recursive(true).create(&dst)?;
         for entry in fs::read_dir(src)? {
@@ -33,6 +36,7 @@ fn copy_folder<P: AsRef<Path>>(src: P, dst: P) -> std::io::Result<()> {
             copy_folder(entry_path, dst_path)?;
         }
     } else {
+        println!("Source: {:?}, Destination: {:?}", src, dst);
         fs::copy(src, dst).expect("Couldn't retrieve file.");
     }
     Ok(())
